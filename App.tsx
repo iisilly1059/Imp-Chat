@@ -37,7 +37,6 @@ const App: React.FC = () => {
   });
 
   const privateKeyRef = useRef<CryptoKey | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [myPeerId, setMyPeerId] = useState('');
 
   useEffect(() => {
@@ -45,9 +44,11 @@ const App: React.FC = () => {
       const storedGroups = await GroupsDB.find();
       const storedMessages = await MessagesDB.find();
       
-      const sessionUserStr = sessionStorage.getItem('imp_user');
-      if (sessionUserStr) {
-        const user = JSON.parse(sessionUserStr);
+      const persistentUserStr = localStorage.getItem('imp_user');
+      if (persistentUserStr) {
+        const user = JSON.parse(persistentUserStr);
+        // Regenerate keys on session resume for security, though in a real app 
+        // you'd likely store the keys in IndexedDB.
         const keyPair = await CryptoService.generateKeyPair();
         privateKeyRef.current = keyPair.privateKey;
         user.publicKey = await CryptoService.exportPublicKey(keyPair.publicKey);
@@ -145,7 +146,7 @@ const App: React.FC = () => {
 
     const peerId = await socket.connect(newUser);
     setMyPeerId(peerId);
-    sessionStorage.setItem('imp_user', JSON.stringify(newUser));
+    localStorage.setItem('imp_user', JSON.stringify(newUser));
     
     setState(prev => ({ ...prev, currentUser: newUser, currentView: AppView.CHAT, connected: true }));
   };
@@ -246,7 +247,11 @@ const App: React.FC = () => {
             onAcceptRequest={() => {}}
             onDeclineRequest={() => {}}
             onSettings={() => setState(prev => ({ ...prev, currentView: AppView.SETTINGS }))}
-            onLogout={() => { socket.disconnect(); setState(prev => ({ ...prev, currentView: AppView.LOGIN })); }}
+            onLogout={() => { 
+              socket.disconnect(); 
+              localStorage.removeItem('imp_user');
+              setState(prev => ({ ...prev, currentUser: null, currentView: AppView.LOGIN, connected: false })); 
+            }}
             currentUser={{ ...state.currentUser!, peerId: myPeerId } as any}
             connected={state.connected}
             onManualConnect={handleConnectToPeer}
