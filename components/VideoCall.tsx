@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { User } from '../types';
 import { Mic, MicOff, Video, VideoOff, PhoneOff, ShieldCheck, User as UserIcon } from 'lucide-react';
