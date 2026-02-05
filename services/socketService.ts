@@ -11,7 +11,7 @@ class GlobalPeerSocket {
   public myPeerId: string = '';
   public connected: boolean = false;
 
-  private BACKEND_URL = 'https://imp-mesh-relay.onrender.com'; 
+  private BACKEND_URL = 'https://imp-chat.onrender.com'; 
 
   constructor() {}
 
