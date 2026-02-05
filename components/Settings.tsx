@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { AppState, User } from '../types';
 import { ArrowLeft, Monitor, Music, Shield, AlertTriangle, User as UserIcon, ShieldAlert } from 'lucide-react';
